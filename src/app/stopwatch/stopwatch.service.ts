@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
-import { StopwatchModule } from './stopwatch.module';
-import { Observable, interval, of } from 'rxjs';
-import { take, scan, startWith, map, filter } from 'rxjs/operators';
+import { interval, Observable } from 'rxjs';
+import { distinctUntilChanged, map, take } from 'rxjs/operators';
 
 interface TimeObservables {
   hours?: Observable<string>;
-  minutes: Observable<string>;
-  seconds: Observable<string>;
+  minutes$: Observable<string>;
+  seconds$: Observable<string>;
 }
 
 @Injectable({
@@ -19,11 +18,12 @@ export class StopwatchService {
 
   constructor() { }
 
-  public startTimer(resolution = 0.1): Observable<string> {
+  public startTimer(startWith = 0, resolution = 0.1): Observable<string> {
     const frequency = 1000 * resolution;
     const emitsPerSecond = 1 / resolution;
     return interval(frequency).pipe(
-      map(val => `${Math.floor((val + 1) / emitsPerSecond)}.${(val + 1) % emitsPerSecond}`)
+      map(val => val + 1),
+      map(val => `${Math.floor((val / emitsPerSecond) + startWith)}.${Math.floor(val + startWith) % emitsPerSecond}`)
     );
   }
 
@@ -37,9 +37,9 @@ export class StopwatchService {
       map((val: string): string => {
         const total = parseFloat(val);
         const min = (total < 1) ? 0 : Math.floor(total / 60);
-        const sec = total - min;
-        console.debug({total, min, sec});
-        return `0:${min.toPrecision(1)}:${sec < 1 ? (sec < 0.1 ? '0.0' : sec.toPrecision(1)) : sec.toPrecision(2)}`;
+        const sec = total % 60;
+        // console.debug({total, min, sec});
+        return `0:${min}:${sec.toFixed(1)}`;
       })
     );
   }
@@ -50,12 +50,12 @@ export class StopwatchService {
       map(val => val.split(':')[2])
     );
     const minutes$ = source$.pipe(
-      map(val => val.split(':')[1]),
-      filter(min => parseInt(min, 10) % 600 === 0)
+      map(val => val.split(':')[1], 10),
+      distinctUntilChanged((x, y) => parseInt(x, 10) === parseInt(y, 10))
     );
     return {
-      minutes: minutes$,
-      seconds: seconds$
+      minutes$,
+      seconds$
     };
   }
 

@@ -22,7 +22,7 @@ fdescribe('StopwatchService', () => {
     // tslint:disable-next-line: max-line-length
     const expectedSeconds = ['2.0', '1.9', '1.8', '1.7', '1.6', '1.5', '1.4', '1.3', '1.2', '1.1', '1.0', '0.9', '0.8', '0.7', '0.6', '0.5', '0.4', '0.3', '0.2', '0.1', '0.0'];
     const returnedSeconds: string[] = [];
-    const { seconds } = service.getObservables(2);
+    const { seconds$: seconds } = service.getObservables(2);
     await seconds
       .pipe(
         tap(val => { returnedSeconds.push(val); })
@@ -37,11 +37,11 @@ fdescribe('StopwatchService', () => {
 
   xit('should emit values from 0.1 to 2.0 by increments of 0.1', async () => {
     //  tslint:disable-next-line: max-line-length
-    const expectedSeconds = [ '0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1.0', '1.1', '1.2', '1.3', '1.4', '1.5', '1.6', '1.7', '1.8', '1.9', '2.0'];
+    const expectedSeconds = ['0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1.0', '1.1', '1.2', '1.3', '1.4', '1.5', '1.6', '1.7', '1.8', '1.9', '2.0'];
     const returnedSeconds: string[] = [];
     const inaccuracyThreshold = expectedSeconds.length - 10;
     let allValuesMatching: Boolean = null;
-    
+
     // const stop$ = timer(2000).pipe(take(1)); // Stop timer after 2 seconds
     // await service.startTimer()
     //   .pipe(
@@ -62,7 +62,7 @@ fdescribe('StopwatchService', () => {
     } catch (err) {
       // Since the observable never completes, the timeout operator will throw an error
       // 2 seconds after it has started emitting values.
-      returnedSeconds.some((val, idx) =>{
+      returnedSeconds.some((val, idx) => {
         if (val !== expectedSeconds[idx]) {
           allValuesMatching = new Boolean(false);
           return false;
@@ -86,4 +86,28 @@ fdescribe('StopwatchService', () => {
     }
 
   });
+
+
+  it('should emit values from given offset when offset provided', async () => {
+    const expectedSeconds = ['1.2', '1.3', '1.4', '1.5', '1.6'];
+    const returnedSeconds: string[] = [];
+    const stop$ = timer(2000).pipe(take(1)); // Stop timer after 2 seconds
+    await service.startTimer(1.2)
+      .pipe(
+        tap(val => { returnedSeconds.push(val); }),
+        takeUntil(stop$)
+      )
+      .toPromise();
+
+    expect(returnedSeconds
+      .slice(0, expectedSeconds.length)
+      .every((val, idx) => val === expectedSeconds[idx])
+    ).toBeTruthy(
+      `
+      Expected ${JSON.stringify(returnedSeconds.slice(0, expectedSeconds.length))}
+      to equal ${JSON.stringify(expectedSeconds)}`
+    );
+  });
+
+
 });

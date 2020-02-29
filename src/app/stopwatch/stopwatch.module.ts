@@ -2,12 +2,15 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StopwatchContainerComponent } from './stopwatch-container.component';
 import { StopwatchService } from './stopwatch.service';
+import { StopwatchComponent } from './stopwatch/stopwatch.component';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   imports: [
     CommonModule,
+    FormsModule
   ],
-  declarations: [StopwatchContainerComponent],
+  declarations: [StopwatchContainerComponent, StopwatchComponent],
   exports: [StopwatchContainerComponent],
   providers: [StopwatchService]
 })
