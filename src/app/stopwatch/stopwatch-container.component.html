@@ -8,7 +8,7 @@
 
     <button [disabled]="timerRunning" (click)="startCountDown(sec.value, min.value)">Start timer</button>
 
-    <button (click)="resetTimer();">Reset timer</button>
+    <button *ngIf="timerRunning" (click)="resetTimer();">Reset timer</button>
 </div>
 
 

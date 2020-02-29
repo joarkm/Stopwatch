@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Observable, Subject, of } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, finalize } from 'rxjs/operators';
 import { StopwatchService } from './stopwatch.service';
 import { StopwatchComponent } from './stopwatch/stopwatch.component';
 
@@ -27,7 +27,6 @@ export class StopwatchContainerComponent implements OnInit {
   public CounterStates = CounterState;
   public counterState: CounterState = CounterState.STOPPED;
 
-
   constructor(
     private stopwatchService: StopwatchService
   ) { }
@@ -41,11 +40,13 @@ export class StopwatchContainerComponent implements OnInit {
       parseInt(seconds, 10) || 0,
       parseInt(minutes, 10) || 0
     );
-    this.minutes$ = minutes$.pipe(
-      takeUntil(this.timerStop$)
+    this.minutes$  = minutes$.pipe(
+      takeUntil(this.timerStop$),
+      finalize(() => { this.timerRunning = false; })
     );
     this.seconds$ = seconds$.pipe(
-      takeUntil(this.timerStop$)
+      takeUntil(this.timerStop$),
+      finalize(() => { this.timerRunning = false; })
     );
   }
 
