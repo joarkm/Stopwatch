@@ -1,7 +1,7 @@
-import { Component, OnInit, ChangeDetectionStrategy, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { TimingAction, TimingEvent } from '~shared/components/events/timing.event';
-import { TimePresentationComponent } from '~shared/components/time-presentation/time-presentation.component';
 import { TimingState } from '~shared/components/states';
+import { TimePresentationComponent } from '~shared/components/time-presentation/time-presentation.component';
 
 @Component({
   selector: 'app-stopwatch',
