@@ -5,6 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { StopwatchModule } from './stopwatch/stopwatch.module';
 import { TimerModule } from './timer/timer.module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -14,7 +15,8 @@ import { TimerModule } from './timer/timer.module';
     BrowserModule,
     AppRoutingModule,
     StopwatchModule,
-    TimerModule
+    TimerModule,
+    BrowserAnimationsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
