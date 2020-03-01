@@ -10,6 +10,8 @@ import { TimingState } from '../states';
 })
 export class TimingControlsComponent implements OnInit {
 
+  @Input() startDisabled = false;
+
   @Input() currentTimingState: TimingState = TimingState.STOPPED;
 
   @Output() timingActionDispatched = new EventEmitter<TimingAction>();

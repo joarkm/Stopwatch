@@ -44,4 +44,15 @@ export class TimerComponent {
     }
   }
 
+  isStartDisabled(): boolean {
+    return (!this.minutesChosen || parseInt(this.minutesChosen, 10) === 0)
+    && (!this.secondsChosen || parseInt(this.secondsChosen, 10) === 0);
+  }
+
+  public parentNotifyTimerEnded(): void {
+    this.currentTimingState = TimingState.STOPPED;
+    this.minutesChosen = '';
+    this.secondsChosen = '';
+  }
+
 }

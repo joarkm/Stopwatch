@@ -2,6 +2,6 @@
 <input type="text" placeholder="minutter" [(ngModel)]="minutesChosen">
 <input type="text" placeholder="sekunder" [(ngModel)]="secondsChosen">
 <app-timing-controls
-    [currentTimingState]="currentTimingState"
+    [currentTimingState]="currentTimingState" [startDisabled]="isStartDisabled()"
     (timingActionDispatched)="onTimingActionDispatched($event);"
 ></app-timing-controls>

@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { Observable, of, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, finalize } from 'rxjs/operators';
 import { TimingAction, TimingEvent } from '~shared/components/events/timing.event';
 import { TimerService } from '../stopwatch/timer.service';
+import { TimerComponent } from './timer/timer.component';
 
 @Component({
   selector: 'app-timer-container',
@@ -10,6 +11,9 @@ import { TimerService } from '../stopwatch/timer.service';
   styleUrls: ['./timer-container.component.scss']
 })
 export class TimerContainerComponent {
+
+  @ViewChild(TimerComponent, { static: false })
+  timerComponent: TimerComponent;
 
   private timerStopSource: Subject<void> = new Subject<void>();
   private timerStop$: Observable<void> = this.timerStopSource.asObservable();
@@ -30,7 +34,8 @@ export class TimerContainerComponent {
       takeUntil(this.timerStop$)
     );
     this.seconds$ = seconds$.pipe(
-      takeUntil(this.timerStop$)
+      takeUntil(this.timerStop$),
+      finalize(() => { this.onTimerEnded(); })
     );
   }
 
@@ -64,6 +69,11 @@ export class TimerContainerComponent {
       default:
         break;
     }
+  }
+
+  private onTimerEnded(): void {
+    this.resetTimer();
+    this.timerComponent.parentNotifyTimerEnded();
   }
 
 }
