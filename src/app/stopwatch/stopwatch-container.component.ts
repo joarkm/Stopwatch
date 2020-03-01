@@ -3,6 +3,7 @@ import { Observable, Subject, of } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
 import { StopwatchService } from './stopwatch.service';
 import { StopwatchComponent } from './stopwatch/stopwatch.component';
+import { TimerService } from './timer.service';
 
 @Component({
   selector: 'app-stopwatch-container',
@@ -28,7 +29,8 @@ export class StopwatchContainerComponent implements OnInit {
   public counterState: CounterState = CounterState.STOPPED;
 
   constructor(
-    private stopwatchService: StopwatchService
+    private stopwatchService: StopwatchService,
+    private timerService: TimerService
   ) { }
 
   ngOnInit(): void {
@@ -36,7 +38,7 @@ export class StopwatchContainerComponent implements OnInit {
 
   public startCountDown(seconds: string, minutes: string) {
     this.timerRunning = true;
-    const { minutes$, seconds$ } = this.stopwatchService.getObservables(
+    const { minutes$, seconds$ } = this.timerService.getObservables(
       parseInt(seconds, 10) || 0,
       parseInt(minutes, 10) || 0
     );
