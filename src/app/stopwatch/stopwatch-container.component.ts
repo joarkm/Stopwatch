@@ -1,9 +1,9 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Observable, Subject, of } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
 import { StopwatchService } from './stopwatch.service';
-import { StopwatchComponent } from './stopwatch/stopwatch.component';
 import { TimerService } from './timer.service';
+import { TimingEvent, TimingAction } from '~shared/components/events/timing.event';
 
 @Component({
   selector: 'app-stopwatch-container',
@@ -11,9 +11,6 @@ import { TimerService } from './timer.service';
   styleUrls: ['./stopwatch-container.component.scss']
 })
 export class StopwatchContainerComponent implements OnInit {
-
-  @ViewChild('counterComponent')
-  private counterComponent: StopwatchComponent;
 
   private counterStopSource: Subject<void> = new Subject<void>();
   private timerStopSource: Subject<void> = new Subject<void>();
@@ -25,8 +22,6 @@ export class StopwatchContainerComponent implements OnInit {
   public counterSeconds$: Observable<string> = of('0.0');
 
   public timerRunning = false;
-  public CounterStates = CounterState;
-  public counterState: CounterState = CounterState.STOPPED;
 
   constructor(
     private stopwatchService: StopwatchService,
@@ -60,39 +55,43 @@ export class StopwatchContainerComponent implements OnInit {
     this.minutes$ = of('0');
   }
 
-
   public startCounter(): void {
-    this.counterState = CounterState.RUNNING;
     this.counterSeconds$ = this.stopwatchService.startTimer().pipe(
       takeUntil(this.counterStop$)
     );
   }
 
   public pauseCounter(): void {
-    this.counterState = CounterState.PAUSED;
     this.counterStopSource.next();
   }
 
-  public resumeCounter(): void {
-    this.counterState = CounterState.RUNNING;
-    const currentCount = parseInt(this.counterComponent.minutes, 10) * 60
-      + parseFloat(this.counterComponent.seconds);
+  public resumeCounter(state: { hours: string, minutes: string, seconds: string}): void {
+    const currentCount = parseInt(state.minutes, 10) * 60
+      + parseFloat(state.seconds);
     this.counterSeconds$ = this.stopwatchService.startTimer(currentCount).pipe(
       takeUntil(this.counterStop$)
     );
   }
 
   public stopCounter(): void {
-    this.counterState = CounterState.STOPPED;
     this.counterStopSource.next();
     // Reset values
     this.counterSeconds$ = of('0.0');
   }
 
-}
+  public onTimingEventEmitted(timingEvent: TimingEvent): void {
+    switch (timingEvent.action) {
+      case TimingAction.START:
+        return this.startCounter();
+      case TimingAction.STOP:
+        return this.stopCounter();
+      case TimingAction.PAUSE:
+        return this.pauseCounter();
+      case TimingAction.RESUME:
+        return this.resumeCounter(timingEvent.state);
+      default:
+        break;
+    }
+  }
 
-enum CounterState {
-  STOPPED,
-  PAUSED,
-  RUNNING
 }

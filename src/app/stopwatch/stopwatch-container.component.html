@@ -1,4 +1,3 @@
-<!-- <ng-container *ngIf="!timerRunning; else ShowTimer"><p>0:0.0</p></ng-container> -->
 <h1>Nedteller</h1>
 <div class="card">
     <app-stopwatch [minutes]="minutes$ | async" [seconds]="seconds$ | async"></app-stopwatch>
@@ -11,15 +10,11 @@
     <button *ngIf="timerRunning" (click)="resetTimer();">Reset timer</button>
 </div>
 
-
 <h1>Stoppeklokke</h1>
 
 <div class="card">
-    <ng-container [ngSwitch]="counterState">
-        <button *ngSwitchCase="CounterStates.PAUSED" (click)="resumeCounter();">Resume</button>
-        <button *ngSwitchCase="CounterStates.RUNNING" (click)="pauseCounter();">Pause</button>
-        <button *ngSwitchDefault (click)="startCounter();">Start</button>
-    </ng-container>
-    <button *ngIf="counterState !== CounterStates.STOPPED" (click)="stopCounter();">Stopp</button>
-    <app-stopwatch #counterComponent [minutes]="0" [seconds]="counterSeconds$ | async"></app-stopwatch>
+    <app-stopwatch 
+        [minutes]="0" [seconds]="counterSeconds$ | async"
+        (timingEventEmitted)="onTimingEventEmitted($event);">
+    </app-stopwatch>
 </div>

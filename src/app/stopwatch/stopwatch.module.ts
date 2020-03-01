@@ -4,11 +4,13 @@ import { StopwatchContainerComponent } from './stopwatch-container.component';
 import { StopwatchService } from './stopwatch.service';
 import { StopwatchComponent } from './stopwatch/stopwatch.component';
 import { FormsModule } from '@angular/forms';
+import { SharedModule } from '~shared/shared.module';
 
 @NgModule({
   imports: [
     CommonModule,
-    FormsModule
+    FormsModule,
+    SharedModule
   ],
   declarations: [StopwatchContainerComponent, StopwatchComponent],
   exports: [StopwatchContainerComponent],

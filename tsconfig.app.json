@@ -1,12 +1,8 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "baseUrl": "./",
     "outDir": "./out-tsc/app",
-    "types": [],
-    "paths": {
-      "~@shared/*": ["src/app/shared/*"]
-    }
+    "types": []
   },
   "files": [
     "src/main.ts",

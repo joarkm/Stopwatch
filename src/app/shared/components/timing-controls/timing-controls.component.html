@@ -1,0 +1,7 @@
+<ng-container [ngSwitch]="currentTimingState">
+    <button *ngSwitchCase="TimingStates.PAUSED" (click)="resume();">Resume</button>
+    <button *ngSwitchCase="TimingStates.RUNNING" (click)="pause();">Pause</button>
+    <button *ngSwitchDefault (click)="start();">Start</button>
+</ng-container>
+
+<button *ngIf="currentTimingState !== TimingStates.STOPPED" (click)="stop();">Stopp</button>
