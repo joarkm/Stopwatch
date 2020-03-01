@@ -7,7 +7,7 @@ export enum TimingAction {
 
 export interface TimingEvent {
     action: TimingAction;
-    state?: {
+    data?: {
         hours: string;
         minutes: string;
         seconds: string;

@@ -1,11 +1,12 @@
-import { Component, EventEmitter, OnInit, Output, Input } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, Input, ChangeDetectionStrategy } from '@angular/core';
 import { TimingAction } from '../events/timing.event';
 import { TimingState } from '../states';
 
 @Component({
   selector: 'app-timing-controls',
   templateUrl: './timing-controls.component.html',
-  styleUrls: ['./timing-controls.component.scss']
+  styleUrls: ['./timing-controls.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimingControlsComponent implements OnInit {
 

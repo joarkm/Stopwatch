@@ -1,17 +1,3 @@
-<h1>Nedteller</h1>
-<div class="card">
-    <app-stopwatch [minutes]="minutes$ | async" [seconds]="seconds$ | async"></app-stopwatch>
-
-    <input #min type="text" placeholder="minutter">
-    <input #sec type="text" placeholder="sekunder">
-
-    <button [disabled]="timerRunning" (click)="startCountDown(sec.value, min.value)">Start timer</button>
-
-    <button *ngIf="timerRunning" (click)="resetTimer();">Reset timer</button>
-</div>
-
-<h1>Stoppeklokke</h1>
-
 <div class="card">
     <app-stopwatch 
         [minutes]="0" [seconds]="counterSeconds$ | async"

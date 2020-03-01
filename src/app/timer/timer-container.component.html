@@ -1,0 +1,6 @@
+<div class="card">
+    <app-timer 
+        [minutes]="minutes$ | async" [seconds]="seconds$ | async"
+        (timingEventEmitted)="onTimingEventEmitted($event);">
+    </app-timer>
+</div>

@@ -9,7 +9,7 @@ import { TimingState } from '~shared/components/states';
   styleUrls: ['./stopwatch.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class StopwatchComponent implements OnInit {
+export class StopwatchComponent {
 
   @ViewChild(TimePresentationComponent)
   timePresentationComponent: TimePresentationComponent;
@@ -23,15 +23,12 @@ export class StopwatchComponent implements OnInit {
 
   constructor() { }
 
-  ngOnInit(): void {
-  }
-
   onTimingActionDispatched(timingAction: TimingAction): void {
     if (timingAction === TimingAction.RESUME) {
       const { minutes, seconds } = this.timePresentationComponent;
       this.timingEventEmitted.emit({
         action: timingAction,
-        state: { hours: '0', minutes, seconds }
+        data: { hours: '0', minutes, seconds }
       });
     } else {
       this.timingEventEmitted.emit({ action: timingAction});

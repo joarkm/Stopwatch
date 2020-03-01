@@ -4,6 +4,7 @@ import { NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { StopwatchModule } from './stopwatch/stopwatch.module';
+import { TimerModule } from './timer/timer.module';
 
 @NgModule({
   declarations: [
@@ -12,7 +13,8 @@ import { StopwatchModule } from './stopwatch/stopwatch.module';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    StopwatchModule
+    StopwatchModule,
+    TimerModule
   ],
   providers: [],
   bootstrap: [AppComponent]

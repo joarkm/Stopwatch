@@ -1,0 +1,7 @@
+<app-time-presentation [minutes]="minutes" [seconds]="seconds"></app-time-presentation>
+<input type="text" placeholder="minutter" [(ngModel)]="minutesChosen">
+<input type="text" placeholder="sekunder" [(ngModel)]="secondsChosen">
+<app-timing-controls
+    [currentTimingState]="currentTimingState"
+    (timingActionDispatched)="onTimingActionDispatched($event);"
+></app-timing-controls>
