@@ -5,11 +5,13 @@ import { TimingAction, TimingEvent } from '~shared/components/events/timing.even
 import { TimingState } from '~shared/components/states';
 import { TimerService } from './timer.service';
 import { TimerComponent } from './timer/timer.component';
+import { Timer } from './timer';
 
 @Component({
   selector: 'app-timer-container',
   templateUrl: './timer-container.component.html',
-  styleUrls: ['./timer-container.component.scss']
+  styleUrls: ['./timer-container.component.scss'],
+  providers: [Timer]
 })
 export class TimerContainerComponent {
 
@@ -23,36 +25,46 @@ export class TimerContainerComponent {
   public seconds$: Observable<string> = of('0.0');
 
   constructor(
-    private timerService: TimerService
+    private timerService: TimerService,
+    private timer: Timer
   ) { }
 
   public startTimer(seconds: string, minutes: string) {
-    const { minutes$, seconds$ } = this.timerService.getObservables(
+    const { seconds$, minutes$ } = this.timer.createNewTimer(
       parseInt(seconds, 10) || 0,
       parseInt(minutes, 10) || 0
     );
-    this.minutes$  = minutes$.pipe(
-      takeUntil(this.timerStop$)
-    );
-    this.seconds$ = seconds$.pipe(
-      takeUntil(this.timerStop$),
-      finalize(() => { this.onTimerEnded(); })
-    );
+
+    this.seconds$ = seconds$;
+    this.minutes$ = minutes$;
+
+    // this.minutes$  = minutes$.pipe(
+    //   takeUntil(this.timerStop$)
+    // );
+    // this.seconds$ = seconds$.pipe(
+    //   takeUntil(this.timerStop$),
+    //   finalize(() => { this.onTimerEnded(); })
+    // );
+    this.seconds$.subscribe(val => console.log(`${val} secs`));
+    this.minutes$.subscribe(val => console.log(`${val} minutes`));
+    setTimeout(() => {
+      this.timer.startTimer();
+    }, 1);
   }
 
-  public resumeTimer(data: { hours: string, minutes: string, seconds: string}): void {
-    this.startTimer(data.seconds, data.minutes);
+  public resumeTimer(): void {
+    this.timer.resumeTimer();
   }
 
   public resetTimer(): void {
-    this.timerStopSource.next();
+    this.timer.stopTimer();
     // Reset values
     this.seconds$ = of('0.0');
     this.minutes$ = of('0');
   }
 
   public pauseTimer(): void {
-    this.timerStopSource.next();
+    this.timer.pauseTimer();
   }
 
   public onTimingEventEmitted(timingEvent: TimingEvent): void {
@@ -66,7 +78,7 @@ export class TimerContainerComponent {
       case TimingAction.PAUSE:
         return this.pauseTimer();
       case TimingAction.RESUME:
-        return this.resumeTimer(timingEvent.data);
+        return this.resumeTimer();
       default:
         break;
     }
