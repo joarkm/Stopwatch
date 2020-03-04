@@ -2,7 +2,8 @@ import { Component, ViewChild } from '@angular/core';
 import { Observable, of, Subject } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
 import { TimingAction, TimingEvent } from '~shared/components/events/timing.event';
-import { TimerService } from '../stopwatch/timer.service';
+import { TimingState } from '~shared/components/states';
+import { TimerService } from './timer.service';
 import { TimerComponent } from './timer/timer.component';
 
 @Component({
