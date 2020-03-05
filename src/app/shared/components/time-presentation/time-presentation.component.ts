@@ -17,9 +17,7 @@ export class TimePresentationComponent implements OnInit, OnChanges {
 
   constructor(
     private cdRef: ChangeDetectorRef
-  ) {
-    this.selectedDate = this.getDefaultDate();
-  }
+  ) {}
 
   private getDefaultDate(): Date {
     const newDate = new Date();
@@ -33,14 +31,14 @@ export class TimePresentationComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes.seconds) {
-      const newDate = new Date(this.selectedDate);
+    if (changes.seconds && !changes.seconds.firstChange) {
+      const newDate = this.selectedDate ? new Date(this.selectedDate) : this.getDefaultDate();
       newDate.setSeconds(changes.seconds.currentValue);
       this.selectedDate = newDate;
       this.cdRef.detectChanges();
     }
-    if (changes.minutes) {
-      const newDate = new Date(this.selectedDate);
+    if (changes.minutes && !changes.minutes.firstChange) {
+      const newDate = this.selectedDate ? new Date(this.selectedDate) : this.getDefaultDate();
       newDate.setMinutes(changes.minutes.currentValue);
       this.selectedDate = newDate;
       this.cdRef.detectChanges();

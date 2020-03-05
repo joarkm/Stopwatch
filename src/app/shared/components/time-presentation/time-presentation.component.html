@@ -9,4 +9,7 @@
     </div>
 </div>
 
-<timepicker [(ngModel)]="selectedDate" [showMeridian]="false" [showSpinners]="!disabled" [showMinutes]="true" [showSeconds]="true" [readonlyInput]="disabled"></timepicker>
+<timepicker [(ngModel)]="selectedDate" [readonlyInput]="disabled"
+    [showMeridian]="false" [showSpinners]="!disabled" [showMinutes]="true" [showSeconds]="true"
+    [hourStep]="1" [minuteStep]="1" [secondsStep]="1">
+</timepicker>
