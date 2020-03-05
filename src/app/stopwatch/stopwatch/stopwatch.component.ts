@@ -28,7 +28,7 @@ export class StopwatchComponent {
       const { minutes, seconds } = this.timePresentationComponent;
       this.timingEventEmitted.emit({
         action: timingAction,
-        data: { hours: '0', minutes, seconds }
+        data: { hours: '0', minutes, seconds, precision: 1 }
       });
     } else {
       this.timingEventEmitted.emit({ action: timingAction});

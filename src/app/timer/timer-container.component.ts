@@ -30,14 +30,15 @@ export class TimerContainerComponent {
     private timer: Timer
   ) { }
 
-  public startTimer(seconds: string, minutes: string) {
+  public startTimer(seconds: string, minutes: string, precision: number) {
     const { seconds$, minutes$ } = this.timer.createNewTimer(
       parseInt(seconds, 10) || 0,
-      parseInt(minutes, 10) || 0
+      parseInt(minutes, 10) || 0,
+      precision
     );
 
     this.seconds$ = merge(
-      of(padWholeWithZeroes(seconds, 1)),
+      of(precision > 0 ? padWholeWithZeroes(seconds, 1) : seconds),
       seconds$.pipe(
         finalize(() => { this.onTimerEnded(); })
       )
@@ -45,9 +46,7 @@ export class TimerContainerComponent {
     this.minutes$ = merge(of(minutes.toString()), minutes$);
     this.seconds$
       .subscribe(val => console.log(val));
-      // .subscribe(val => console.log(`${val} secs`));
     this.minutes$
-      // .subscribe(val => console.log(val));
       .subscribe(val => console.log(`${val} minutes`));
     this.timer.startTimer();
   }
@@ -70,8 +69,8 @@ export class TimerContainerComponent {
   public onTimingEventEmitted(timingEvent: TimingEvent): void {
     switch (timingEvent.action) {
       case TimingAction.START: {
-        const { minutes, seconds } = timingEvent.data;
-        return this.startTimer(seconds, minutes);
+        const { minutes, seconds, precision } = timingEvent.data;
+        return this.startTimer(seconds, minutes, precision);
       }
       case TimingAction.STOP:
         return this.resetTimer();

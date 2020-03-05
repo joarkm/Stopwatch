@@ -1,10 +1,12 @@
 <div style="display: flex; flex-direction: row; align-items: center; row-gap: 20px;">
     <div style="display: flex; flex-direction: column;">
         <h2>Minutter</h2>
-        <p>{{minutes}}</p>
+        <p [ngClass]="{ 'blink': shouldBlink }">{{minutes}}</p>
     </div>
     <div style="display: flex; flex-direction: column; margin-left: 20px;">
         <h2>Sekunder</h2>
-        <p>{{seconds}}</p>
+        <p [ngClass]="{ 'blink': shouldBlink }">{{seconds}}</p>
     </div>
 </div>
+
+<timepicker [(ngModel)]="selectedDate" [showMeridian]="false" [showSpinners]="!disabled" [showMinutes]="true" [showSeconds]="true" [readonlyInput]="disabled"></timepicker>

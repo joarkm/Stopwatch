@@ -24,17 +24,20 @@ export class Timer {
 
     constructor() {}
 
-    public createNewTimer(seconds: number, minutes: number, decimals = 1): TimeObservables {
+    public createNewTimer(seconds: number, minutes: number, decimals = 0): TimeObservables {
         if (decimals > 3) {
             throw new Error('Max precision is milliseconds');
         }
         this.completeObservablesIfNeccessary();
+        
+        const msBetweenEmission = Math.pow(10, 3 - decimals);
 
-        const timer$ = interval(100).pipe(map(x => x + 1));
+        const timer$ = interval(msBetweenEmission).pipe(map(x => x + 1));
 
+        const freq = Math.pow(10, decimals); // Hz
         const seed = seconds + (minutes * 60);
-        const takeAmount = Math.pow(10, decimals) * (seconds + (minutes * 60));
-        const emissionsPerMinute = Math.pow(10, decimals) * 60;
+        const takeAmount = freq * seed;
+        const emissionsPerMinute = freq * 60;
 
         const source = merge(this.start$, this.pause$, this.resume$).pipe(
             startWith(true),
@@ -50,7 +53,7 @@ export class Timer {
                     const parts = acc.toString().split('.');
                     const whole = parseInt(parts[0], 10) % emissionsPerMinute;
                     const dec = parseInt(parts[1], 10);
-                    const base = Math.pow(10, decimals);
+                    const base = freq;
                     let newDec: string | number = (dec + base - 1) % base;
                     let newWhole = whole;
                     if (newDec === parseInt('9'.repeat(decimals), 10)) {
@@ -68,7 +71,7 @@ export class Timer {
 
         return {
             seconds$: source.pipe(
-                map(val => floatStringModulo(val, 1, 60)),
+                map(val => floatStringModulo(val, decimals, 60)),
                 takeUntil(this.stop$),
             ),
             minutes$: source.pipe(

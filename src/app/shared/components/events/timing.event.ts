@@ -11,6 +11,7 @@ export interface TimingEvent {
         hours: string;
         minutes: string;
         seconds: string;
+        precision: number;
     };
 }
 

@@ -21,6 +21,8 @@ export class TimerComponent {
 
   public minutesChosen: string;
   public secondsChosen: string;
+  public selectedPrecision = '1';
+  public TimingStates = TimingState;
   public currentTimingState: TimingState = TimingState.STOPPED;
 
   constructor() { }
@@ -30,14 +32,16 @@ export class TimerComponent {
       : (timingAction === TimingAction.PAUSE ? TimingState.PAUSED : TimingState.RUNNING);
     if (timingAction === TimingAction.RESUME) {
       const { minutes, seconds } = this.timePresentationComponent;
+      const selectedPrecision = Math.log10(parseInt(this.selectedPrecision, 10));
       this.timingEventEmitted.emit({
         action: timingAction,
-        data: { hours: '0', minutes, seconds }
+        data: { hours: '0', minutes, seconds, precision: selectedPrecision }
       });
     } else if (timingAction === TimingAction.START) {
+      const selectedPrecision = Math.log10(parseInt(this.selectedPrecision, 10));
       this.timingEventEmitted.emit({
         action: timingAction,
-        data: { hours: '0', minutes: this.minutesChosen, seconds: this.secondsChosen }
+        data: { hours: '0', minutes: this.minutesChosen, seconds: this.secondsChosen, precision: selectedPrecision }
       });
     } else {
       this.timingEventEmitted.emit({ action: timingAction });

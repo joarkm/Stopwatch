@@ -1,4 +1,4 @@
-export function floatStringModulo(num: string, decimals = 1, modulo = 59): string {
+export function floatStringModulo(num: string, decimals = 0, modulo = 59): string {
     let next;
     const parts = num.split('.');
     const whole = parseInt(parts[0], 10) % modulo;
@@ -24,7 +24,7 @@ export function floatStringModulo(num: string, decimals = 1, modulo = 59): strin
 
     newDec = newDec.toString().padStart(decimals, '0');
     next = `${newWhole}.${newDec}`;
-    return next;
+    return decimals > 0 ?  next : next.split('.')[0];
 }
 
 export function padWholeWithZeroes(num: string | number, decimals = 1): string {
