@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { EMPTY, interval, merge, Observable, Subject } from 'rxjs';
-import { map, scan, switchMap, take, takeUntil, startWith, mapTo } from 'rxjs/operators';
+import { map, scan, switchMap, take, takeUntil, startWith, mapTo, skip } from 'rxjs/operators';
 import { TimeObservables } from '~shared/interfaces';
 import { takeEveryNth } from '~shared/operators/takeEveryNth';
+import { floatStringModulo, padWholeWithZeroes } from '~shared/utils';
 
 @Injectable()
 export class Timer {
@@ -23,7 +24,7 @@ export class Timer {
 
     constructor() {}
 
-    public createNewTimer(seconds: number, minutes: number, decimals = 0): TimeObservables {
+    public createNewTimer(seconds: number, minutes: number, decimals = 1): TimeObservables {
         if (decimals > 3) {
             throw new Error('Max precision is milliseconds');
         }
@@ -41,15 +42,13 @@ export class Timer {
                 return (proceed ? timer$ : EMPTY);
             }),
             scan((acc, curr) => {
-                // console.error({acc, curr});
                 let next;
                 if (decimals > 0) {
                     if (typeof acc === 'number' && curr === 1) {
-                        // console.error('returning default value');
-                        return `${seed - 1}`.concat('.').concat('9'.repeat(decimals));
+                        return padWholeWithZeroes(seed, decimals);
                     }
                     const parts = acc.toString().split('.');
-                    const whole = parseInt(parts[0], 10);
+                    const whole = parseInt(parts[0], 10) % emissionsPerMinute;
                     const dec = parseInt(parts[1], 10);
                     const base = Math.pow(10, decimals);
                     let newDec: string | number = (dec + base - 1) % base;
@@ -68,11 +67,14 @@ export class Timer {
         );
 
         return {
-            seconds$: source.pipe(takeUntil(this.stop$)),
+            seconds$: source.pipe(
+                map(val => floatStringModulo(val, 1, 60)),
+                takeUntil(this.stop$),
+            ),
             minutes$: source.pipe(
-                startWith('0'),
-                takeEveryNth(emissionsPerMinute - 1),
-                map((val, index) => (index + 1).toString()),
+                skip(takeAmount % emissionsPerMinute),
+                takeEveryNth(emissionsPerMinute),
+                map((val, index) => (minutes - (index + 1)).toString()),
                 takeUntil(this.stop$)
             )
         };

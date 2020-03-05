@@ -4,6 +4,3 @@
     [minutes]="minutes$ | async" [seconds]="seconds$ | async"
     (timingEventEmitted)="onTimingEventEmitted($event);">
 </app-timer>
-
-<pre *ngIf="(seconds$ | async) as seconds">seconds: {{seconds}}</pre>
-<pre *ngIf="(minutes$ | async) as minutes">minutes: {{minutes}}</pre>

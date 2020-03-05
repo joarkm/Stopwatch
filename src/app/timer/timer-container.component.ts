@@ -1,11 +1,12 @@
 import { Component, ViewChild } from '@angular/core';
-import { Observable, of, Subject } from 'rxjs';
+import { Observable, of, Subject, merge } from 'rxjs';
 import { takeUntil, finalize } from 'rxjs/operators';
 import { TimingAction, TimingEvent } from '~shared/components/events/timing.event';
 import { TimingState } from '~shared/components/states';
 import { TimerService } from './timer.service';
 import { TimerComponent } from './timer/timer.component';
 import { Timer } from './timer';
+import { padWholeWithZeroes } from '~shared/utils';
 
 @Component({
   selector: 'app-timer-container',
@@ -35,8 +36,13 @@ export class TimerContainerComponent {
       parseInt(minutes, 10) || 0
     );
 
-    this.seconds$ = seconds$.pipe(finalize(() => { this.onTimerEnded(); }));
-    this.minutes$ = minutes$;
+    this.seconds$ = merge(
+      of(padWholeWithZeroes(seconds, 1)),
+      seconds$.pipe(
+        finalize(() => { this.onTimerEnded(); })
+      )
+    );
+    this.minutes$ = merge(of(minutes.toString()), minutes$);
     this.seconds$
       .subscribe(val => console.log(val));
       // .subscribe(val => console.log(`${val} secs`));
