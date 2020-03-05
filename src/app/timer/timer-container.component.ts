@@ -35,21 +35,15 @@ export class TimerContainerComponent {
       parseInt(minutes, 10) || 0
     );
 
-    this.seconds$ = seconds$;
+    this.seconds$ = seconds$.pipe(finalize(() => { this.onTimerEnded(); }));
     this.minutes$ = minutes$;
-
-    // this.minutes$  = minutes$.pipe(
-    //   takeUntil(this.timerStop$)
-    // );
-    // this.seconds$ = seconds$.pipe(
-    //   takeUntil(this.timerStop$),
-    //   finalize(() => { this.onTimerEnded(); })
-    // );
-    this.seconds$.subscribe(val => console.log(`${val} secs`));
-    this.minutes$.subscribe(val => console.log(`${val} minutes`));
-    setTimeout(() => {
-      this.timer.startTimer();
-    }, 1);
+    this.seconds$
+      .subscribe(val => console.log(val));
+      // .subscribe(val => console.log(`${val} secs`));
+    this.minutes$
+      // .subscribe(val => console.log(val));
+      .subscribe(val => console.log(`${val} minutes`));
+    this.timer.startTimer();
   }
 
   public resumeTimer(): void {

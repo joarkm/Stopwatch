@@ -1,21 +1,21 @@
 import { Injectable } from '@angular/core';
 import { EMPTY, interval, merge, Observable, Subject } from 'rxjs';
-import { map, scan, switchMap, take, takeUntil, startWith } from 'rxjs/operators';
+import { map, scan, switchMap, take, takeUntil, startWith, mapTo } from 'rxjs/operators';
 import { TimeObservables } from '~shared/interfaces';
 import { takeEveryNth } from '~shared/operators/takeEveryNth';
 
 @Injectable()
 export class Timer {
 
-    private startSource: Subject<boolean> = new Subject();
-    private pauseSource: Subject<boolean> = new Subject();
-    private resumeSource: Subject<boolean> = new Subject();
+    private startSource: Subject<void> = new Subject();
+    private pauseSource: Subject<void> = new Subject();
+    private resumeSource: Subject<void> = new Subject();
     private stopSource: Subject<void> = new Subject();
 
-    private start$ = this.startSource.asObservable();
-    private pause$ = this.pauseSource.asObservable();
-    private resume$ = this.resumeSource.asObservable();
-    private stop$ = this.stopSource.asObservable();
+    private start$: Observable<boolean> = this.startSource.asObservable().pipe(mapTo(true));
+    private pause$: Observable<boolean> = this.pauseSource.asObservable().pipe(mapTo(false));
+    private resume$: Observable<boolean> = this.resumeSource.asObservable().pipe(mapTo(true));
+    private stop$: Observable<void> = this.stopSource.asObservable();
 
     private timer$: Observable<any>;
 
@@ -27,17 +27,16 @@ export class Timer {
         if (decimals > 3) {
             throw new Error('Max precision is milliseconds');
         }
-        // this.completeObservablesIfNeccessary();
+        this.completeObservablesIfNeccessary();
 
-        const timer$ = interval(10).pipe(map(x => x + 1));
+        const timer$ = interval(100).pipe(map(x => x + 1));
 
         const seed = seconds + (minutes * 60);
         const takeAmount = Math.pow(10, decimals) * (seconds + (minutes * 60));
-        const emissionsPerMinute = takeAmount % 60;
+        const emissionsPerMinute = Math.pow(10, decimals) * 60;
 
-        console.log('EHI');
         const source = merge(this.start$, this.pause$, this.resume$).pipe(
-            // startWith(true),
+            startWith(true),
             switchMap(proceed => {
                 return (proceed ? timer$ : EMPTY);
             }),
@@ -63,7 +62,7 @@ export class Timer {
                 } else {
                     next = acc - 1;
                 }
-                return next;
+                return next.toString();
             }, seed),
             take(takeAmount)
         );
@@ -71,7 +70,9 @@ export class Timer {
         return {
             seconds$: source.pipe(takeUntil(this.stop$)),
             minutes$: source.pipe(
+                startWith('0'),
                 takeEveryNth(emissionsPerMinute - 1),
+                map((val, index) => (index + 1).toString()),
                 takeUntil(this.stop$)
             )
         };
