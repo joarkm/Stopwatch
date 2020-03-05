@@ -26,6 +26,27 @@ module.exports = function (config) {
     logLevel: config.LOG_INFO,
     autoWatch: true,
     browsers: ['Chrome'],
+    customLaunchers: {
+      ChromeDebug: {
+        base: 'Chrome',
+        flags: [
+          '--remote-debugging-port=9333',
+          '--auto-open-devtools-for-tabs',
+          // 'http://localhost:9876/debug.html'
+        ],
+        debug: true
+      },
+      ChromeHeadlessDebug: {
+        base: 'Chrome',
+        flags: [
+          '--remote-debugging-port=9333',
+          '--auto-open-devtools-for-tabs',
+          // 'http://localhost:9876/debug.html' // Open debug page on launch
+          '-headless'
+        ],
+        debug: true
+      },
+    },
     singleRun: false,
     restartOnFileChange: true
   });
