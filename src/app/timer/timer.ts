@@ -43,7 +43,7 @@ export class Timer {
             switchMap(proceed => {
                 return (proceed ? timer$ : EMPTY);
             }),
-            scan((acc, curr) => seed - curr, seed),
+            scan((acc, curr) => acc - 1, seed),
             take(takeAmount)
         );
 
