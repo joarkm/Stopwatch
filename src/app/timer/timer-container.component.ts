@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { Observable, of, Subject, merge } from 'rxjs';
-import { takeUntil, finalize } from 'rxjs/operators';
+import { takeUntil, finalize, map } from 'rxjs/operators';
 import { TimingAction, TimingEvent } from '~shared/components/events/timing.event';
 import { TimingState } from '~shared/components/states';
 import { TimerService } from './timer.service';
@@ -38,12 +38,16 @@ export class TimerContainerComponent {
     );
 
     this.seconds$ = merge(
-      of(precision > 0 ? padWholeWithZeroes(seconds, 1) : seconds),
+      of(precision > 0 ? padWholeWithZeroes(seconds, 1) : seconds.toString()),
       seconds$.pipe(
+        map(val => val.toString()),
         finalize(() => { this.onTimerEnded(); })
       )
     );
-    this.minutes$ = merge(of(minutes.toString()), minutes$);
+    this.minutes$ = merge(
+      of(minutes.toString()),
+      minutes$.pipe(map(val => val.toString()))
+    );
     this.seconds$
       .subscribe(val => console.log(val));
     this.minutes$

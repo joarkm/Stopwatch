@@ -3,7 +3,7 @@ import { EMPTY, interval, merge, Observable, Subject } from 'rxjs';
 import { map, scan, switchMap, take, takeUntil, startWith, mapTo, skip } from 'rxjs/operators';
 import { TimeObservables } from '~shared/interfaces';
 import { takeEveryNth } from '~shared/operators/takeEveryNth';
-import { floatStringModulo, padWholeWithZeroes } from '~shared/utils';
+import { toFractionSecond } from '~shared/utils';
 
 @Injectable()
 export class Timer {
@@ -18,7 +18,6 @@ export class Timer {
     private resume$: Observable<boolean> = this.resumeSource.asObservable().pipe(mapTo(true));
     private stop$: Observable<void> = this.stopSource.asObservable();
 
-    private timer$: Observable<any>;
 
     private initialized = false;
 
@@ -29,14 +28,14 @@ export class Timer {
             throw new Error('Max precision is milliseconds');
         }
         this.completeObservablesIfNeccessary();
-        
+
         const msBetweenEmission = Math.pow(10, 3 - decimals);
 
         const timer$ = interval(msBetweenEmission).pipe(map(x => x + 1));
 
         const freq = Math.pow(10, decimals); // Hz
-        const seed = seconds + (minutes * 60);
-        const takeAmount = freq * seed;
+        const seed = freq * (seconds + (minutes * 60));
+        const takeAmount = seed;
         const emissionsPerMinute = freq * 60;
 
         const source = merge(this.start$, this.pause$, this.resume$).pipe(
@@ -44,40 +43,22 @@ export class Timer {
             switchMap(proceed => {
                 return (proceed ? timer$ : EMPTY);
             }),
-            scan((acc, curr) => {
-                let next;
-                if (decimals > 0) {
-                    if (typeof acc === 'number' && curr === 1) {
-                        return padWholeWithZeroes(seed, decimals);
-                    }
-                    const parts = acc.toString().split('.');
-                    const whole = parseInt(parts[0], 10) % emissionsPerMinute;
-                    const dec = parseInt(parts[1], 10);
-                    const base = freq;
-                    let newDec: string | number = (dec + base - 1) % base;
-                    let newWhole = whole;
-                    if (newDec === parseInt('9'.repeat(decimals), 10)) {
-                        newWhole = whole - 1;
-                    }
-                    newDec = newDec.toString().padStart(decimals, '0');
-                    next = `${newWhole}.${newDec}`;
-                } else {
-                    next = acc - 1;
-                }
-                return next.toString();
-            }, seed),
+            scan((acc, curr) => seed - curr, seed),
             take(takeAmount)
         );
 
         return {
             seconds$: source.pipe(
-                map(val => floatStringModulo(val, decimals, 60)),
-                takeUntil(this.stop$),
+                map(val => toFractionSecond(val, decimals)),
+                map(val => val % 60),
+                map(val => val.toFixed(decimals)),
+                takeUntil(this.stop$)
             ),
             minutes$: source.pipe(
                 skip(takeAmount % emissionsPerMinute),
                 takeEveryNth(emissionsPerMinute),
-                map((val, index) => (minutes - (index + 1)).toString()),
+                map((val, index) => minutes - (index + 1)),
+                map(val => val.toString()),
                 takeUntil(this.stop$)
             )
         };
