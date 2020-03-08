@@ -1,4 +1,4 @@
-export function floatStringModulo(num: string, decimals = 0, modulo = 59): string {
+export function floatStringModulo(num: string, decimals = 0, modulo = 60): string {
     let next;
     const parts = num.split('.');
     const whole = parseInt(parts[0], 10) % modulo;

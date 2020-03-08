@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { tap } from 'rxjs/operators';
 import { Timer } from './timer';
 
-fdescribe('TimerService', () => {
+describe('TimerService', () => {
   let service: Timer;
 
   beforeEach(() => {
