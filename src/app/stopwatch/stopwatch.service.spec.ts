@@ -1,7 +1,9 @@
 import { TestBed } from '@angular/core/testing';
-import { timer } from 'rxjs';
-import { take, takeUntil, tap, timeout } from 'rxjs/operators';
+import { from, timer } from 'rxjs';
+import { last, skip, switchMap, take, takeUntil, tap, timeout, toArray } from 'rxjs/operators';
+
 import { StopwatchService } from './stopwatch.service';
+
 
 describe('StopwatchService', () => {
   let service: StopwatchService;
@@ -89,6 +91,65 @@ describe('StopwatchService', () => {
       Expected ${JSON.stringify(returnedSeconds.slice(0, expectedSeconds.length))}
       to equal ${JSON.stringify(expectedSeconds)}`
     );
+  });
+
+  it('should resume emission of values from given offset', async () => {
+
+    // TODO: A lot of logic in test (like in component). Should be tested in a different way or extract this "pause logic" to some other place?
+
+    const expectedFirstHalf = ["0.0", "0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7"];
+    const expectedSecondHalf = [ "0.8", "0.9", "1.0", "1.1", "1.2", "1.3", "1.4", "1.5"];
+
+    const watch1$ = service.startTimer()
+      .pipe(take(15));
+
+    const pause1$ = from(watch1$).pipe(
+      skip(8),
+      take(1)
+    );
+
+    const stopWatch1$ = from(watch1$).pipe(
+      takeUntil(pause1$)
+    );
+
+    const watch2$ = stopWatch1$.pipe(
+      last(),
+      switchMap(() => service.startTimer(8).pipe(take(15)))
+    );
+
+    const pause2$ = from(watch2$).pipe(
+      skip(8),
+      take(1)
+    );
+
+    const stopWatch2$ = from(watch2$).pipe(
+      takeUntil(pause2$)
+    );
+
+    const actualFirstHalf = await stopWatch1$.pipe(
+      toArray()
+    ).toPromise();
+
+    const actualSecondHalf = await stopWatch2$.pipe(
+      toArray()
+    ).toPromise();
+
+    expect(actualFirstHalf
+      .every((val, idx) => val === expectedFirstHalf[idx])
+    ).toBeTruthy(
+      `
+      Expected ${JSON.stringify(actualFirstHalf)}
+      to equal ${JSON.stringify(expectedFirstHalf)}`
+    );
+
+    expect(actualSecondHalf
+      .every((val, idx) => val === expectedSecondHalf[idx])
+    ).toBeTruthy(
+      `
+      Expected ${JSON.stringify(actualSecondHalf)}
+      to equal ${JSON.stringify(expectedSecondHalf)}`
+    );
+
   });
 
 });

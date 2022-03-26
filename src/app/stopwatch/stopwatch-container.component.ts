@@ -3,6 +3,7 @@ import { Observable, of, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { TimingAction, TimingEvent } from '~shared/components/events/timing.event';
 import { StopwatchService } from './stopwatch.service';
+import { TimeResolution } from '~shared/enums';
 
 @Component({
   selector: 'app-stopwatch-container',
@@ -13,6 +14,7 @@ export class StopwatchContainerComponent {
 
   private counterStopSource: Subject<void> = new Subject<void>();
   private counterStop$: Observable<void> = this.counterStopSource.asObservable();
+  private resolution = TimeResolution.DECISECOND;
 
   public counterSeconds$: Observable<string> = of('0.0');
 
@@ -31,8 +33,8 @@ export class StopwatchContainerComponent {
   }
 
   public resumeCounter(state: { hours: string, minutes: string, seconds: string}): void {
-    const currentCount = parseInt(state.minutes, 10) * 60
-      + parseFloat(state.seconds);
+    const currentCount = (parseInt(state.minutes, 10) * 60
+      + parseFloat(state.seconds)) / this.resolution;
     this.counterSeconds$ = this.stopwatchService.startTimer(currentCount).pipe(
       takeUntil(this.counterStop$)
     );
