@@ -1,15 +1,16 @@
 import { Injectable } from '@angular/core';
 import { interval, Observable } from 'rxjs';
 import { distinctUntilChanged, map, take } from 'rxjs/operators';
-import { toFloat } from '~shared/operators';
 import { TimeObservables } from '~shared/interfaces';
+import { toFloat } from '~shared/operators';
+import { Timer } from './timer';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TimerService {
 
-  constructor() { }
+  constructor() {}
 
   // TODO: Provide option for resolution (e.g. 0.1, 0.01, 1 (default)) and speed (e.g. 2x, 0.5x, 1x (default))
   private getCountdown(seconds: number, minutes = 0): Observable<string> {
@@ -28,7 +29,11 @@ export class TimerService {
     );
   }
 
-  public getObservables(seconds: number, minutes = 0): TimeObservables {
+  // public getTimer(seconds: number, minutes: number, decimals = 0): Timer {
+  //   return new Timer(seconds, minutes, decimals);
+  // }
+
+  public getObservables_old(seconds: number, minutes = 0): TimeObservables {
     const source$ = this.getCountdown(seconds, minutes);
     const seconds$ = source$.pipe(
       map(val => val.split(':')[2])

@@ -1,7 +1,17 @@
-<app-time-presentation [minutes]="minutes" [seconds]="seconds"></app-time-presentation>
+<app-time-presentation [minutes]="minutes" [seconds]="seconds"
+    [shouldBlink]="currentTimingState === TimingStates.PAUSED" [disabled]="currentTimingState === TimingStates.RUNNING">
+</app-time-presentation>
 <input type="text" placeholder="minutter" [(ngModel)]="minutesChosen">
 <input type="text" placeholder="sekunder" [(ngModel)]="secondsChosen">
-<app-timing-controls
-    [currentTimingState]="currentTimingState" [startDisabled]="isStartDisabled()"
-    (timingActionDispatched)="onTimingActionDispatched($event);"
-></app-timing-controls>
+
+<br><br>
+<div class="btn-group" btnRadioGroup [(ngModel)]="selectedPrecision">
+    <label class="btn btn-primary" btnRadio="1000">1/1000</label>
+    <label class="btn btn-primary" btnRadio="100">1/100</label>
+    <label class="btn btn-primary" btnRadio="10">1/10</label>
+    <label class="btn btn-primary" btnRadio="1">Default</label>
+</div>
+<hr>
+
+<app-timing-controls [currentTimingState]="currentTimingState" [startDisabled]="isStartDisabled()"
+    (timingActionDispatched)="onTimingActionDispatched($event);"></app-timing-controls>

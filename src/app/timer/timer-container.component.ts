@@ -1,14 +1,18 @@
 import { Component, ViewChild } from '@angular/core';
-import { Observable, of, Subject } from 'rxjs';
-import { takeUntil, finalize } from 'rxjs/operators';
+import { Observable, of, Subject, merge } from 'rxjs';
+import { takeUntil, finalize, map } from 'rxjs/operators';
 import { TimingAction, TimingEvent } from '~shared/components/events/timing.event';
-import { TimerService } from '../stopwatch/timer.service';
+import { TimingState } from '~shared/components/states';
+import { TimerService } from './timer.service';
 import { TimerComponent } from './timer/timer.component';
+import { Timer } from './timer';
+import { padWholeWithZeroes } from '~shared/utils';
 
 @Component({
   selector: 'app-timer-container',
   templateUrl: './timer-container.component.html',
-  styleUrls: ['./timer-container.component.scss']
+  styleUrls: ['./timer-container.component.scss'],
+  providers: [Timer]
 })
 export class TimerContainerComponent {
 
@@ -22,50 +26,62 @@ export class TimerContainerComponent {
   public seconds$: Observable<string> = of('0.0');
 
   constructor(
-    private timerService: TimerService
+    private timerService: TimerService,
+    private timer: Timer
   ) { }
 
-  public startTimer(seconds: string, minutes: string) {
-    const { minutes$, seconds$ } = this.timerService.getObservables(
+  public startTimer(seconds: string, minutes: string, precision: number) {
+    const { seconds$, minutes$ } = this.timer.createNewTimer(
       parseInt(seconds, 10) || 0,
-      parseInt(minutes, 10) || 0
+      parseInt(minutes, 10) || 0,
+      precision
     );
-    this.minutes$  = minutes$.pipe(
-      takeUntil(this.timerStop$)
+
+    this.seconds$ = merge(
+      of(precision > 0 ? padWholeWithZeroes(seconds, 1) : seconds.toString()),
+      seconds$.pipe(
+        map(val => val.toString()),
+        finalize(() => { this.onTimerEnded(); })
+      )
     );
-    this.seconds$ = seconds$.pipe(
-      takeUntil(this.timerStop$),
-      finalize(() => { this.onTimerEnded(); })
+    this.minutes$ = merge(
+      of(minutes.toString()),
+      minutes$.pipe(map(val => val.toString()))
     );
+    this.seconds$
+      .subscribe(val => console.log(val));
+    this.minutes$
+      .subscribe(val => console.log(`${val} minutes`));
+    this.timer.startTimer();
   }
 
-  public resumeTimer(data: { hours: string, minutes: string, seconds: string}): void {
-    this.startTimer(data.seconds, data.minutes);
+  public resumeTimer(): void {
+    this.timer.resumeTimer();
   }
 
   public resetTimer(): void {
-    this.timerStopSource.next();
+    this.timer.stopTimer();
     // Reset values
     this.seconds$ = of('0.0');
     this.minutes$ = of('0');
   }
 
   public pauseTimer(): void {
-    this.timerStopSource.next();
+    this.timer.pauseTimer();
   }
 
   public onTimingEventEmitted(timingEvent: TimingEvent): void {
     switch (timingEvent.action) {
       case TimingAction.START: {
-        const { minutes, seconds } = timingEvent.data;
-        return this.startTimer(seconds, minutes);
+        const { minutes, seconds, precision } = timingEvent.data;
+        return this.startTimer(seconds, minutes, precision);
       }
       case TimingAction.STOP:
         return this.resetTimer();
       case TimingAction.PAUSE:
         return this.pauseTimer();
       case TimingAction.RESUME:
-        return this.resumeTimer(timingEvent.data);
+        return this.resumeTimer();
       default:
         break;
     }
